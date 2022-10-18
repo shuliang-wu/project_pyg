@@ -1,6 +1,11 @@
 import Vue from 'vue'
 import App from './App.vue'
+//注册路由功能
 import router from '@/router'
+
+//注册仓库功能
+import store from './store';
+
 import TypeNav from '@/components/TypeNav';
 import Carousel from '@/components/Carousel'
 import Pagination from '@/components/Pagination'
@@ -8,7 +13,7 @@ import Pagination from '@/components/Pagination'
 Vue.component(TypeNav.name,TypeNav)
 Vue.component(Carousel.name,Carousel)
 Vue.component(Pagination.name,Pagination)
-import store from './store';
+
 
 //注册两个全局组件:Header、Footer,全局组件写法【定义一次,可以直接在任意地方使用】
 //Vue.component(组件的名字,组件)
@@ -35,25 +40,19 @@ import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 */
 //按需引入
-// import { Button, Row, Col, MessageBox,Message,Input} from 'element-ui';
+import { Button, Row, Col, MessageBox,Message,Input} from 'element-ui';
 //element-ui大多数组件，注册为全局组件Vue.component|Vue.use
 // Vue.use(Button);
 // Vue.use(Row);
 // Vue.use(Col);
 // Vue.use(Input)
 //按需引入写法不同的:MessageBox、Message、Loading、Notification
-// Vue.prototype.$msgbox = MessageBox;
+Vue.prototype.$msgbox = MessageBox;
 //消息提示框
-// Vue.prototype.$alert = MessageBox.alert;
+Vue.prototype.$alert = MessageBox.alert;
 
 // Vue.prototype.$message = Message;
-//测试获取数据
-// import { reqCategory } from '@/api';
-// console.log('入口文件地方',reqCategory());
-//注册路由功能
-// import router from './router';
-//注册仓库功能
-// import store from './store';
+
 
 //引入mockServe文件,让咱们模拟接口跑起来
 import "@/mock/mockServe.js";
@@ -62,16 +61,32 @@ import "@/mock/mockServe.js";
 import "swiper/css/swiper.css"
 
 
+// 实现图片懒加载，使用vue-lazyload插件,可以在请求的图片资源回来时先显示某一张图片，保证用户体验
+// 引入插件
+import VueLazyload from 'vue-lazyload'
+// 引入需要默认显示的图片
+import atm from '@/assets/1.gif'
+// 使用插件
+Vue.use(VueLazyload,{
+    loading:atm
+})
+
+
+// 引入表单验证插件
+import '@/myPlugins/validate'
+
+
+
 
 //将项目全部请求函数引入进来[分别暴露]
-// import  * as http from '@/api';
+import  * as API from '@/api';
 new Vue({
   //配置全局事件总线
   beforeCreate() {
     //配置全局事件总线
     Vue.prototype.$bus = this;
     //通过Vue.prototype原型对象,将全部请求函数挂载到原型对象身上[VC:就可以使用请求函数]
-    // Vue.prototype.$http = http;
+    Vue.prototype.$API = API;
   },
   //下面代码作用:给项目添加路由功能,给全部VC实例身上拥有两个属性,$router|$route
   router,

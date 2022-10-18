@@ -1,7 +1,10 @@
 <template>
   <div class="cart-complete-wrap">
     <div class="cart-complete">
-      <h3><i class="sui-icon icon-pc-right"></i>商品已成功加入购物车！</h3>
+      
+      <h3><i class="sui-icon"></i>商品已成功加入购物车！
+      <img src="./images/success.png" alt="" class="success">
+      </h3>
       <div class="goods">
         <div class="left-good">
           <div class="left-pic">
@@ -13,8 +16,8 @@
           </div>
         </div>
         <div class="right-gocart">
-          <a href="javascript:" class="sui-btn btn-xlarge">查看商品详情</a>
-          <a href="javascript:" >去购物车结算 > </a>
+          <router-link :to="`/detail/${skuInfo.id}`" class="sui-btn btn-xlarge">查看商品详情</router-link>
+          <router-link to="/shopcart" >去购物车结算 > </router-link>
         </div>
       </div>
     </div>
@@ -35,6 +38,10 @@
 <style lang="less" scoped>
   .cart-complete-wrap {
     background-color: #f4f4f4;
+    .success {
+      width: 40px;
+      height: 40px;
+    }
 
     .cart-complete {
       width: 1200px;
@@ -109,7 +116,8 @@
           }
 
           a:hover {
-            background-color: #f7f7f7;
+            color: white;
+            background-color: #e1251b;
             border: 1px solid #eaeaea;
           }
 

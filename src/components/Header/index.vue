@@ -5,16 +5,20 @@
       <div class="container">
         <div class="loginList">
           <p>品优购欢迎您！</p>
-          <p>
+          <p v-if="!userName">
             <span>请</span>
             <router-link to="/login">登录</router-link>
             <router-link to="/register" class="register">免费注册</router-link>
           </p>
+          <p v-else>
+            <a>{{userName}}</a>
+            <a class="register" @click="logout">退出登录</a>
+          </p>
         </div>
         <div class="typeList">
-          <a href="###">我的订单</a>
-          <a href="###">我的购物车</a>
-          <a href="###">我的品优购</a>
+          <router-link to="/home">品优购首页</router-link>
+          <router-link to="/center/myorder">我的订单</router-link>
+          <router-link to="/shopcart">我的购物车</router-link>
           <a href="###">品优购会员</a>
           <a href="###">企业采购</a>
           <a href="###">关注品优购</a>
@@ -68,6 +72,15 @@ export default {
 
       }
       
+    },
+    async logout(){
+      try {
+        await this.$store.dispatch('userLogout');
+        // 如果退出登录成功，那么就需要跳转到home首页，以游客身份进行操作
+        this.$router.push('/home')
+      } catch (error) {
+        alert(error.message)
+      }
     }
   },
   data(){
@@ -80,12 +93,20 @@ export default {
     this.$bus.$on("clear",()=>{
       this.keyword = '';
     })
-  }
+  },
+  computed:{
+    userName(){
+      return this.$store.state.user.userInfo.name
+    }
+  },
 };
 </script>
 
 <style lang="less" scoped>
 .header {
+  a:hover {
+          color: #ea4a36;
+        }
   & > .top {
     background-color: #eaeaea;
     height: 30px;
@@ -121,6 +142,7 @@ export default {
             border-left: 1px solid #b3aeae;
           }
         }
+        
       }
     }
   }

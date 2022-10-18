@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import routes from './routes'
+import store from '@/store'
 
 Vue.use(VueRouter)
 
@@ -37,13 +38,67 @@ VueRouter.prototype.replace = function (location, resolve, reject) {
         originReplace.call(this, location, () => { }, () => { });
     }
 }
-export default new VueRouter({
+let router = new VueRouter({
     routes,
+    // 路由滚动
     scrollBehavior(to, from, savedPosition) {
         // 这个方法返回滚动位置的对象信息，长这样：    
         // { x: number, y: number }
         // 始终滚动到顶部
         return { y: 0 }
-      },
+    },
 
 })
+
+
+router.beforeEach(async (to, from, next) => {
+    // console.log(store);
+    // 先判断用户是否已经登录,通过token判断用户是否已经登录
+    let token = store.state.user.token;
+    let name = store.state.user.name
+    if (token) {
+        // 如果用户已经登录
+        // 需要判断用户是不是想去登录页面，不能让他去登录页面,让他呆在首页
+        if (to.path == '/login' || to.path == '/register') {
+            next('/home')
+        } else {
+            // 如果去的不是登录页面【home|search|detail|shopcart】
+            // 先判断有没有用户信息,这里不能直接判断userInfo，因为它空对象也是为真，所以我们需要判断其中的某一个字段【比如name】
+            if (name) {
+                // 登录了且有有用户信息，放行
+                next();
+            } else {
+                // 登录了没有用户信息，需要发送获取用户信息的请求
+                try {
+                    await store.dispatch('getUserInfo')
+                    // 获取用户信息成功之后，再放行
+                    next()
+                } catch (error) {
+                    // 如果获取用户信息没有成功，说明token已经过期了，那么就需要清除token，重新登录
+                    await store.dispatch('userLogout')
+                    next('/login')
+
+                }
+
+            }
+
+        }
+
+    } else {
+        // 如果没有登录，不能去交易相关、不能去支付相关【pay|paysuccess】、不能去个人中心
+        // 未登录去上面的这些路由---跳转到登录页面
+        let toPath = to.path;
+        // console.log(toPath);
+        if (toPath.indexOf('/trade') != -1 || toPath.indexOf('/pay') != -1 || toPath.indexOf('/center') != -1) {
+            next('/login?redirect=' + toPath)
+            // 在用户未登录的时候，想去一些去不了的组件，可以先跳转到登录页面，然后想去的页面以参数的形式存储在路径当中【路由】，在login组件当中进行判断，如果路径当中存在query参数，那么，在用户登录之后就跳转到参数当中的路由，如果没有，就跳到home首页。
+        } else {
+            // 去的不是上面这些路由（home|search|shopCart） --放行
+            next()
+
+        }
+    }
+
+})
+
+export default router

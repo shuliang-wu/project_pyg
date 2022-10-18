@@ -408,7 +408,7 @@ export default {
       // 要么成功、要么失败
       try {
         // 成功
-        await this.$store.dispatch("addShopCart", {
+        await this.$store.dispatch("addOrUpdateShopCart", {
           skuId: this.$route.params.skuId,
           skuNum: this.skuNum,
         });
